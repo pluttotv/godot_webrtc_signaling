@@ -40,7 +40,8 @@ wss.on('connection', ws => {
         const client = clients.get(ws);
 
         switch (data.type) {
-            case 'create_room': {
+            // Create room request
+            case 'CreateRoom': {
                 const { name, maxPlayers } = data;
                 if (name.length < 3 || name.length > 12) {
                     ws.send(JSON.stringify({ type: 'error', message: 'Invalid room name length.' }));
@@ -51,7 +52,7 @@ wss.on('connection', ws => {
                     return;
                 }
 
-                const room = {
+                const arguments = {
                     name,
                     password: generatePassword(),
                     maxPlayers: Math.min(Math.max(parseInt(maxPlayers), 2), 4),
@@ -59,11 +60,11 @@ wss.on('connection', ws => {
                     players: new Map(),
                     sealed: false
                 };
-                room.players.set(ws.id, { peerId: 1, ready: true, ws });
-                rooms.set(name, room);
+                arguments.players.set(ws.id, { peerId: 1, ready: true, ws });
+                rooms.set(name, arguments);
                 client.roomId = name;
 
-                ws.send(JSON.stringify({ type: 'room_created', room }));
+                ws.send(JSON.stringify({ type: 'RoomCreated', arguments }));
                 console.log(`Room created: ${name} by ${ws.id}`);
                 break;
             }
@@ -153,4 +154,5 @@ wss.on('connection', ws => {
         clients.delete(ws);
         console.log(`Client disconnected: ${ws.id}`);
     });
+
 });
