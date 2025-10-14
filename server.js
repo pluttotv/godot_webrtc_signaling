@@ -52,14 +52,24 @@ wss.on('connection', ws => {
                     return;
                 }
 
-                const arguments = {
+                const room = {
                     name,
                     password: generatePassword(),
-                    maxPlayers: Math.min(Math.max(parseInt(maxPlayers), 2), 4)
+                    maxPlayers: Math.min(Math.max(parseInt(maxPlayers), 2), 4),
+                    hostId: ws.id,
+                    players: new Map(),
+                    sealed: false
                 };
-                arguments.players.set(ws.id, { peerId: 1, ready: true, ws });
-                rooms.set(name, arguments);
+                
+                room.players.set(ws.id, { peerId: 1, ready: true, ws });
+                rooms.set(name, room);
                 client.roomId = name;
+
+                const arguments = {
+                    name,
+                    password: room.password,
+                    maxPlayers: room.maxPlayers
+                };
 
                 ws.send(JSON.stringify({ type: 'RoomCreated', arguments }));
                 console.log(`Room created: ${name} by ${ws.id}`);
@@ -161,4 +171,5 @@ wss.on('connection', ws => {
     });
 
 });
+
 
