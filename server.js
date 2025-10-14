@@ -58,7 +58,9 @@ wss.on('connection', ws => {
                     maxPlayers: Math.min(Math.max(parseInt(maxPlayers), 2), 4),
                     hostId: ws.id,
                     players: new Map(),
-                    sealed: false
+                    sealed: false,
+                    map: 0,
+                    mode: 0
                 };
                 
                 room.players.set(ws.id, { peerId: 1, ready: true, ws });
@@ -95,9 +97,9 @@ wss.on('connection', ws => {
 
                 const arguments = {
                     name,
-                    Map: 0,
-                    Mode: 0,
-                    maxPlayers: Math.min(Math.max(parseInt(maxPlayers), 2), 4),
+                    map: room.map,
+                    mode: room.mode,
+                    maxPlayers: room.maxPlayers,
                     peerID: newPeerId,
                 };
 
@@ -171,5 +173,6 @@ wss.on('connection', ws => {
     });
 
 });
+
 
 
