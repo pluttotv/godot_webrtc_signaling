@@ -118,7 +118,7 @@ wss.on('connection', ws => {
                 break;
             }
 
-            case 'seal_room': {
+            case 'StartGame': {
                 const room = rooms.get(client.roomId);
                 if (room && room.hostId === ws.id) {
                     const allReady = Array.from(room.players.values()).every(p => p.ready);
@@ -128,7 +128,7 @@ wss.on('connection', ws => {
                     }
                     room.sealed = true;
                     const playersInfo = Array.from(room.players.values()).map(p => p.peerId);
-                    broadcastToRoom(client.roomId, { type: 'start_game', players: playersInfo });
+                    broadcastToRoom(client.roomId, { type: 'StartGame', arguments: playersInfo });
                     console.log(`Room ${client.roomId} sealed and game started.`);
                 }
                 break;
@@ -173,6 +173,7 @@ wss.on('connection', ws => {
     });
 
 });
+
 
 
 
