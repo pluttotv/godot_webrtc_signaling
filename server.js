@@ -55,10 +55,7 @@ wss.on('connection', ws => {
                 const arguments = {
                     name,
                     password: generatePassword(),
-                    maxPlayers: Math.min(Math.max(parseInt(maxPlayers), 2), 4),
-                    hostId: ws.id,
-                    players: new Map(),
-                    sealed: false
+                    maxPlayers: Math.min(Math.max(parseInt(maxPlayers), 2), 4)
                 };
                 arguments.players.set(ws.id, { peerId: 1, ready: true, ws });
                 rooms.set(name, arguments);
@@ -69,7 +66,7 @@ wss.on('connection', ws => {
                 break;
             }
 
-            case 'join_room': {
+            case 'JoinRoom': {
                 const { name } = data;
                 const room = rooms.get(name);
                 if (!room || room.sealed) {
@@ -86,17 +83,25 @@ wss.on('connection', ws => {
                 room.players.set(ws.id, { peerId: newPeerId, ready: false, ws });
                 client.roomId = name;
 
-                ws.send(JSON.stringify({ type: 'join_success', room, myPeerId: newPeerId }));
-                broadcastToRoom(name, { type: 'player_list_update', players: Array.from(room.players.values()).map(p => ({ peerId: p.peerId, ready: p.ready })) });
+                const arguments = {
+                    name,
+                    Map: 0,
+                    Mode: 0,
+                    maxPlayers: Math.min(Math.max(parseInt(maxPlayers), 2), 4),
+                    peerID: newPeerId,
+                };
+
+                ws.send(JSON.stringify({ type: 'JoinRoom', arguments }));
+                broadcastToRoom(name, { type: 'PlayerListUpdate', players: Array.from(room.players.values()).map(p => ({ peerId: p.peerId, ready: p.ready })) });
                 console.log(`Client ${ws.id} joined room: ${name}`);
                 break;
             }
             
-            case 'set_ready': {
+            case 'PlayerReady': {
                 const room = rooms.get(client.roomId);
                 if (room && room.players.has(ws.id)) {
                     room.players.get(ws.id).ready = data.isReady;
-                    broadcastToRoom(client.roomId, { type: 'player_list_update', players: Array.from(room.players.values()).map(p => ({ peerId: p.peerId, ready: p.ready })) });
+                    broadcastToRoom(client.roomId, { type: 'PlayerReady', arguments: {peerId: room.players.get(ws.id).peerId, ready: room.players.get(ws.id).ready } });
                 }
                 break;
             }
@@ -156,3 +161,4 @@ wss.on('connection', ws => {
     });
 
 });
+
