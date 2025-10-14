@@ -112,7 +112,7 @@ wss.on('connection', ws => {
             case 'PlayerReady': {
                 const room = rooms.get(client.roomId);
                 if (room && room.players.has(ws.id)) {
-                    room.players.get(ws.id).ready = data.isReady;
+                    room.players.get(ws.id).ready = !room.players.get(ws.id).ready;
                     broadcastToRoom(client.roomId, { type: 'PlayerReady', arguments: {peerId: room.players.get(ws.id).peerId, ready: room.players.get(ws.id).ready } });
                 }
                 break;
@@ -173,6 +173,7 @@ wss.on('connection', ws => {
     });
 
 });
+
 
 
 
