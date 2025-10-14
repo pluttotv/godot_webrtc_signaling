@@ -104,7 +104,7 @@ wss.on('connection', ws => {
                 };
 
                 ws.send(JSON.stringify({ type: 'JoinRoom', arguments }));
-                broadcastToRoom(name, { type: 'PlayerListUpdate', players: Array.from(room.players.values()).map(p => ({ peerId: p.peerId, ready: p.ready })) });
+                broadcastToRoom(name, { type: 'PlayerListUpdate', arguments: { playerList: Array.from(room.players.values()).map(p => ({ peerId: p.peerId, ready: p.ready })) } });
                 console.log(`Client ${ws.id} joined room: ${name}`);
                 break;
             }
@@ -113,7 +113,7 @@ wss.on('connection', ws => {
                 const room = rooms.get(client.roomId);
                 if (room && room.players.has(ws.id)) {
                     room.players.get(ws.id).ready = !room.players.get(ws.id).ready;
-                    broadcastToRoom(client.roomId, { type: 'PlayerReady', arguments: {peerId: room.players.get(ws.id).peerId, ready: room.players.get(ws.id).ready } });
+                    broadcastToRoom(client.roomId, { type: 'PlayerReady', arguments: { peerId: room.players.get(ws.id).peerId, ready: room.players.get(ws.id).ready } });
                 }
                 break;
             }
@@ -128,7 +128,7 @@ wss.on('connection', ws => {
                     }
                     room.sealed = true;
                     const playersInfo = Array.from(room.players.values()).map(p => p.peerId);
-                    broadcastToRoom(client.roomId, { type: 'StartGame', arguments: playersInfo });
+                    broadcastToRoom(client.roomId, { type: 'StartGame', arguments: { playerList: playersInfo } });
                     console.log(`Room ${client.roomId} sealed and game started.`);
                 }
                 break;
@@ -173,6 +173,7 @@ wss.on('connection', ws => {
     });
 
 });
+
 
 
 
