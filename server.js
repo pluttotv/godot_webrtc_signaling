@@ -135,16 +135,18 @@ wss.on('connection', ws => {
             }
 
             // --- WebRTC Signaling ---
-            case 'offer':
-            case 'answer':
-            case 'ice_candidate': {
+            case 'RoomOffer':
+            case 'RoomAnswer':
+            case 'IceCandidate': {
                 const room = rooms.get(client.roomId);
                 const targetPlayer = Array.from(room.players.values()).find(p => p.peerId === data.target);
                 if (targetPlayer && targetPlayer.ws.readyState === WebSocket.OPEN) {
                     targetPlayer.ws.send(JSON.stringify({
                         type: data.type,
-                        from: room.players.get(ws.id).peerId,
-                        payload: data.payload
+                        arguments: {
+                            from: room.players.get(ws.id).peerId,
+                            payload: data.payload
+                        }
                     }));
                 }
                 break;
@@ -173,6 +175,7 @@ wss.on('connection', ws => {
     });
 
 });
+
 
 
 
